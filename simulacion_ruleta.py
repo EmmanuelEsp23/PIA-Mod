@@ -1,16 +1,20 @@
-"""
-Simulación de Ruleta — Comparación de Estrategias de Apuesta
-PIA - Modelado y Simulación de Sistemas Dinámicos
 
-Problema 5.2: Ruleta con 10 rojos, 10 negros y 2 verdes.
-  - Estrategia Simple:    apuesta $1 al rojo siempre.
-  - Estrategia Martingala: dobla la apuesta al perder (máx $500),
-                            reinicia a $1 al ganar o superar el límite.
+#   PIA - Modelado y Simulación de Sistemas Dinámicos
+#       Equipo #2
+#       2043930 - Emmanuel Gerard Espinosa Almaguer
+#       2050012 - Jose Miguel Urdiales Carrales
+#       
+#       
+#       
+#       
 
-Regla verde: se re-gira hasta obtener rojo o negro.
-  Si sale el color apostado → empate (no gana/pierde).
-  Si sale el otro color    → pierde la apuesta.
-"""
+# Problema 5.2: Ruleta con 10 rojos, 10 negros y 2 verdes.
+# - Estrategia Simple:    apuesta $1 al rojo siempre.
+# - Estrategia Martingala: dobla la apuesta al perder (máx $500),
+#                         reinicia a $1 al ganar o superar el límite.
+# Regla verde: se re-gira hasta obtener rojo o negro.
+# Si sale el color apostado → empate (no gana/pierde).
+# Si sale el otro color    → pierde la apuesta.
 
 import tkinter as tk
 from tkinter import messagebox
@@ -57,7 +61,9 @@ def jugar_ronda(color_apostado: str) -> str:
 # ─── Estrategias ──────────────────────────────────────────────────────────────
 
 def estrategia_simple(balance_inicial: float, rondas: int) -> list:
-    """Apuesta $1 al rojo en cada ronda."""
+    
+    # Apuesta $1 al rojo en cada ronda.
+    
     balance = balance_inicial
     historial = [balance]
     for _ in range(rondas):
@@ -73,12 +79,11 @@ def estrategia_simple(balance_inicial: float, rondas: int) -> list:
     return historial
 
 
-def estrategia_martingala(balance_inicial: float, rondas: int,
-                           apuesta_max: float = 500.0) -> list:
-    """
-    Dobla la apuesta al perder hasta apuesta_max.
-    Reinicia a $1 al ganar o al perder la apuesta máxima.
-    """
+def estrategia_martingala(balance_inicial: float, rondas: int, apuesta_max: float = 500.0) -> list:
+    
+    # Dobla la apuesta al perder hasta apuesta_max.
+    # Reinicia a $1 al ganar o al perder la apuesta máxima.
+    
     balance = balance_inicial
     historial = [balance]
     apuesta = 1.0
@@ -127,7 +132,7 @@ class AppRuleta(tk.Tk):
     def _cabecera(self):
         hdr = tk.Frame(self, bg=BG_CARD, pady=14)
         hdr.pack(fill='x')
-        tk.Label(hdr, text='🎰  Simulación de Ruleta',
+        tk.Label(hdr, text='Simulación de Ruleta',
                  font=('Segoe UI', 22, 'bold'), fg=C_RED, bg=BG_CARD).pack()
         tk.Label(hdr,
                  text='Problema 5.2 · Comparación de Estrategias de Apuesta',
@@ -207,6 +212,16 @@ class AppRuleta(tk.Tk):
                 self.stat_vars[key] = v
                 tk.Label(fila, textvariable=v, font=('Segoe UI', 9, 'bold'),
                          fg=WHITE, bg=BG_CARD).pack(side='right', anchor='e')
+
+        # ── Banner del ganador ──
+        tk.Frame(panel, bg=TEXT_DIM, height=1).pack(fill='x', pady=(16, 10))
+        tk.Label(panel, text='MEJOR ESTRATEGIA EN ESTA SIMULACIÓN',
+                 font=('Segoe UI', 8, 'bold'), fg=TEXT_DIM, bg=BG_CARD).pack()
+        self.ganador_var = tk.StringVar(value='—')
+        self.ganador_label = tk.Label(panel, textvariable=self.ganador_var,
+                                      font=('Segoe UI', 15, 'bold'),
+                                      fg=C_GOLD, bg=BG_CARD)
+        self.ganador_label.pack(pady=(4, 0))
 
     def _panel_graficas(self, padre):
         contenedor = tk.Frame(padre, bg=BG_DARK)
@@ -389,6 +404,18 @@ class AppRuleta(tk.Tk):
                  'La Simple es más estable; la Martingala es más volátil '
                  'pero puede recuperar pérdidas consecutivas.')
         self.stat_vars['veredicto'].set(v)
+
+        # Ganador explícito (basado en balance promedio y % de ruina)
+        pts_sim = (1 if s['avg'] >= m['avg'] else 0) + (1 if s['ruin'] <= m['ruin'] else 0)
+        pts_mar = (1 if m['avg'] > s['avg'] else 0) + (1 if m['ruin'] < s['ruin'] else 0)
+        if pts_sim > pts_mar:
+            nombre, color = 'Estrategia Simple', C_BLUE
+        elif pts_mar > pts_sim:
+            nombre, color = 'Estrategia Martingala', C_GREEN
+        else:
+            nombre, color = 'Empate', C_GOLD
+        self.ganador_var.set(f'🏆  {nombre}')
+        self.ganador_label.config(fg=color)
 
 
 # ─── Punto de entrada ─────────────────────────────────────────────────────────
