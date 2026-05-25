@@ -2,15 +2,15 @@
 #   Martes N1-N3. Equipo #2
 #       2043930 - Emmanuel Gerard Espinosa Almaguer
 #       2050012 - Jose Miguel Urdiales Carrales
+#       2056791 - Luis Fernando Perez Martínez
+#       2074155 - Isaid Harim Aguiar Cavazos
+#       1993766 - Sonia Arleth Gallegos Sánchez
+#       2109314 - Carlos Dionisio Guia Flores
+#       1961241 - Carlos Helaman Moreira Muñoz
+#       2051019 - 
+#       2022999 - Osmar Alejandro Domínguez Sánchez
+#       1994326 - Diego Azcona
 #       
-#       
-#       
-#
-#
-#
-#
-#
-#
 
 # Problema 5.2: Ruleta con 10 rojos, 10 negros y 2 verdes.
 # - Estrategia Simple:    apuesta $1 al rojo siempre.
