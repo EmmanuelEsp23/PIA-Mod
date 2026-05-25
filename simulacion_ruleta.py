@@ -1,12 +1,16 @@
-
 #   PIA - Modelado y Simulación de Sistemas Dinámicos
-#       Equipo #2
+#   Martes N1-N3. Equipo #2
 #       2043930 - Emmanuel Gerard Espinosa Almaguer
 #       2050012 - Jose Miguel Urdiales Carrales
 #       
 #       
 #       
-#       
+#
+#
+#
+#
+#
+#
 
 # Problema 5.2: Ruleta con 10 rojos, 10 negros y 2 verdes.
 # - Estrategia Simple:    apuesta $1 al rojo siempre.
@@ -114,7 +118,7 @@ def simular_n_veces(estrategia_fn, balance, rondas, n, **kw) -> list:
 class AppRuleta(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title('Simulación de Ruleta — Estrategia Simple vs. Martingala')
+        self.title('Simulación de Ruleta — Estrategia Simple vs. Doblar')
         self.geometry('1340x820')
         self.minsize(900, 600)
         self.configure(bg=BG_DARK)
@@ -159,7 +163,7 @@ class AppRuleta(tk.Tk):
             ('Balance inicial ($):', self.v_balance),
             ('Número de rondas:', self.v_rondas),
             ('Número de simulaciones:', self.v_sims),
-            ('Apuesta máx. Martingala ($):', self.v_apmax),
+            ('Apuesta máx. Doblar ($):', self.v_apmax),
         ]
         for etiqueta, var in campos:
             self._campo(panel, etiqueta, var)
@@ -183,26 +187,17 @@ class AppRuleta(tk.Tk):
             ('sim_min',  '  Balance mínimo final:'),
             ('sim_max',  '  Balance máximo final:'),
             ('sim_ruin', '  Simulaciones en ruina:'),
-            (None,       'Estrategia Martingala'),
+            (None,       'Estrategia de Doblar'),
             ('mar_avg',  '  Balance promedio final:'),
             ('mar_min',  '  Balance mínimo final:'),
             ('mar_max',  '  Balance máximo final:'),
             ('mar_ruin', '  Simulaciones en ruina:'),
-            (None,       'Veredicto'),
-            ('veredicto', None),
         ]
         for key, texto in filas:
-            if key is None and texto:
+            if key is None:
                 tk.Label(panel, text=texto,
                          font=('Segoe UI', 10, 'bold'), fg=C_BLUE, bg=BG_CARD
                          ).pack(anchor='w', pady=(8, 0))
-            elif key == 'veredicto':
-                v = tk.StringVar(value='—')
-                self.stat_vars[key] = v
-                tk.Label(panel, textvariable=v, wraplength=230,
-                         font=('Segoe UI', 9, 'italic'),
-                         fg=C_GOLD, bg=BG_CARD, justify='left'
-                         ).pack(anchor='w', pady=(4, 0))
             else:
                 fila = tk.Frame(panel, bg=BG_CARD)
                 fila.pack(fill='x')
@@ -319,7 +314,7 @@ class AppRuleta(tk.Tk):
         ax.axhline(balance_ini, color=WHITE, linestyle='--',
                    linewidth=1, alpha=0.45, label=f'Inicio ${balance_ini:.0f}')
         ax.axhline(0, color=C_RED, linewidth=1, alpha=0.6)
-        ax.set_title('Estrategia Martingala  (dobla al perder)', fontsize=10, pad=6)
+        ax.set_title('Estrategia de Doblar  (dobla la apuesta al perder)', fontsize=10, pad=6)
         ax.set_xlabel('Ronda'); ax.set_ylabel('Balance ($)')
         ax.legend(fontsize=8, facecolor=BG_CARD, labelcolor=WHITE,
                   edgecolor=TEXT_DIM)
@@ -341,7 +336,7 @@ class AppRuleta(tk.Tk):
         for flier in bp['fliers']:
             flier.set(marker='o', color=TEXT_DIM, alpha=0.5, markersize=3)
         ax.set_xticks([1, 2])
-        ax.set_xticklabels(['Simple', 'Martingala'], color=TEXT_DIM, fontsize=9)
+        ax.set_xticklabels(['Simple', 'Doblar'], color=TEXT_DIM, fontsize=9)
         ax.axhline(balance_ini, color=WHITE, linestyle='--',
                    linewidth=1, alpha=0.45)
         ax.axhline(0, color=C_RED, linewidth=1, alpha=0.6)
@@ -356,7 +351,7 @@ class AppRuleta(tk.Tk):
             max(max(finals_sim), max(finals_mar)),
             25)
         ax.hist(finals_sim, bins=bins, alpha=0.6, color=C_BLUE,  label='Simple')
-        ax.hist(finals_mar, bins=bins, alpha=0.6, color=C_GREEN, label='Martingala')
+        ax.hist(finals_mar, bins=bins, alpha=0.6, color=C_GREEN, label='Doblar')
         ax.axvline(balance_ini, color=WHITE, linestyle='--',
                    linewidth=1.2, alpha=0.6, label=f'Inicio ${balance_ini:.0f}')
         ax.axvline(0, color=C_RED, linewidth=1.2, alpha=0.7)
@@ -391,27 +386,13 @@ class AppRuleta(tk.Tk):
         self.stat_vars['mar_max'].set(f'${m["max"]:.2f}')
         self.stat_vars['mar_ruin'].set(f'{m["ruin"]:.1f} %')
 
-        # Veredicto
-        if s['avg'] > m['avg'] and s['ruin'] <= m['ruin']:
-            v = ('La estrategia Simple preserva mejor el capital con menor '
-                 'riesgo de ruina. Martingala puede dar ganancias altas '
-                 'pero es más volátil.')
-        elif m['avg'] > s['avg'] and m['ruin'] <= s['ruin']:
-            v = ('La Martingala supera a la Simple en promedio y con menor '
-                 'riesgo. Sin embargo, la volatilidad es mayor.')
-        else:
-            v = ('Ambas estrategias pierden dinero a largo plazo. '
-                 'La Simple es más estable; la Martingala es más volátil '
-                 'pero puede recuperar pérdidas consecutivas.')
-        self.stat_vars['veredicto'].set(v)
-
         # Ganador explícito (basado en balance promedio y % de ruina)
         pts_sim = (1 if s['avg'] >= m['avg'] else 0) + (1 if s['ruin'] <= m['ruin'] else 0)
         pts_mar = (1 if m['avg'] > s['avg'] else 0) + (1 if m['ruin'] < s['ruin'] else 0)
         if pts_sim > pts_mar:
             nombre, color = 'Estrategia Simple', C_BLUE
         elif pts_mar > pts_sim:
-            nombre, color = 'Estrategia Martingala', C_GREEN
+            nombre, color = 'Estrategia de Doblar', C_GREEN
         else:
             nombre, color = 'Empate', C_GOLD
         self.ganador_var.set(f'🏆  {nombre}')

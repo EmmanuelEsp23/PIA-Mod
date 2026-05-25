@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import ast; ast.parse\\(open\\('simulacion_ruleta.py', encoding='utf-8'\\).read\\(\\)\\); print\\('Sintaxis OK'\\)\")",
+      "Bash(python -m PyInstaller --onefile --noconsole --name \"SimulacionRuleta\" simulacion_ruleta.py)"
+    ]
+  }
+}
